@@ -10,6 +10,7 @@ x <- cbind(1, x1)
 xtx <- t(x) %*% x
 xtx_inv <- solve(xtx)
 b <- xtx_inv %*% t(x) %*% y
+
 #manuel
 y_hat <- x %*% b
 # b. Artıkları (hataları) hesaplama (y - y_hat)
@@ -21,12 +22,29 @@ n <- length(y)
 p <- 2 # beta_0, beta_1
 s_squared_manual <- SS_Res / (n - p)
 s <- sqrt(s_squared_manual)
+
 #%95'lik bir güven bandı oluşturmak için, verilerin aralığı olan 65 ile 110 arasında yer alan x değerlerini isteğe bağlı olarak seçeriz. Bu noktalardan biri olarak bar{x}'in seçilmesi gelenekseldir. 
 #t(x*) için bar{x} = 84.6
-z <- matrix(c(1, 84.6), nrow=2, ncol=1)
-#güven aralığı formülü için 
-confidence_interval <- t(z) %*% xtx_inv %*% z
+z <- matrix(c(1, 84.6), nrow = 2, ncol = 1)
+
+# Nokta tahmin değerini hesaplıyoruz (x_*' * b)
+y_hat_point <- t(z) %*% b
+
+#Karekök içindeki matris kısmı
+matrix_part <- t(z) %*% xtx_inv %*% z
+
+#t kritik değeri
 t_kritik <- abs(qt(0.025, df = 3))
-#Dökme demirden yapılmış benzer dişliler 84.6 desibel gürültü seviyesi ürettiğinde, kompozit malzemeyle yapılmış dişliler için ortalama gürültü seviyesi üzerindeki %95'lik güven sınırları şu şekildedir:
-lower_bound <- (t(z) %*% b) - (t_kritik %*% s %*% confidence_interval)
-upper_bound <- (t(z) %*% b) + (t_kritik %*% s %*% confidence_interval)
+
+# Marjinal hata (Hata Payı) hesaplama
+hata_payi <- t_kritik * s * sqrt(matrix_part)
+
+# Güven Sınırlarının Hesaplanması
+lower_bound <- y_hat_point - hata_payi
+upper_bound <- y_hat_point + hata_payi
+
+# Sonuçları Görme
+print(paste("Nokta Tahmini:", y_hat_point))
+print(paste("Hata Payı (±):", hata_payi))
+print(paste("Alt Sınır:", lower_bound))
+print(paste("Üst Sınır:", upper_bound))
