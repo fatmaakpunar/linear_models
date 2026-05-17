@@ -48,3 +48,21 @@ print(paste("Nokta Tahmini:", y_hat_point))
 print(paste("Hata Payı (±):", hata_payi))
 print(paste("Alt Sınır:", lower_bound))
 print(paste("Üst Sınır:", upper_bound))
+################################################################## her bir x değeri için
+tablo <- data.frame(x = numeric(), Alt_Sinir = numeric(), Üst_Sinir = numeric())
+for (val in x1) {
+  z <- matrix(c(1, val), nrow = 2, ncol = 1)
+  
+  y_hat_point <- t(z) %*% b
+  matrix_part  <- t(z) %*% xtx_inv %*% z
+  hata_payi    <- t_kritik * s * sqrt(matrix_part)
+  
+  # Alt ve üst sınırlar
+  alt <- as.numeric(y_hat_point - hata_payi)
+  ust <- as.numeric(y_hat_point + hata_payi)
+  
+  # tablomuza ekle
+  tablo <- rbind(tablo, data.frame(x = val, Alt_Sinir = alt, Üst_Sinir = ust))
+}
+
+print(tablo)
